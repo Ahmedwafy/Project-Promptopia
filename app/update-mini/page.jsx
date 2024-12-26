@@ -1,20 +1,34 @@
 "use client";
+// 1-Replaced useSearchParams with window.location.search: This approach ensures
+// compatibility during hydration since useSearchParams can cause issues during SSR.
+
+// 2- Moved URL logic to useEffect: Ensures the logic runs only on the client
+// after the component mounts.
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-
+import { useRouter } from "next/navigation";
+// import { useSearchParams } from "next/navigation"; // Caused error
 import Form from "@components/Form";
 
 const UpdatePrompt = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const promptId = searchParams.get("id");
+  // const searchParams = useSearchParams(); // Caused error
+
+  // const promptId = searchParams.get("id"); // Caused error
+  const [promptId, setPromptId] = useState(null);
 
   const [post, setPost] = useState({ prompt: "", tag: "" });
   const [submitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    // Get the prompt ID from the URL
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    setPromptId(id);
+
     const getPromptDetails = async () => {
+      if (!promptId) return;
+
       const response = await fetch(`/api/prompt/${promptId}`);
       const data = await response.json();
 
