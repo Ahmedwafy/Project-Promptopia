@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
@@ -12,9 +12,20 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
 
   const [copied, setCopied] = useState("");
 
-  const handleProfileClick = () => {
-    console.log(post);
+  // Debugging: Check post and log it
+  useEffect(() => {
+    console.log("Post Data: ", post);
+  }, [post]);
 
+  // Return early if post or creator is undefined
+  if (!post || !post.creator) {
+    return <div>Loading...</div>; // Optional: Add a loading spinner or message
+  }
+
+  // Ensure post.creator.image has a fallback
+  const userImage = post.creator?.image || "/assets/images/default-user.svg";
+
+  const handleProfileClick = () => {
     if (post.creator._id === session?.user.id) return router.push("/profile");
 
     router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
@@ -22,7 +33,7 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
 
   const handleCopy = () => {
     setCopied(post.prompt);
-    navigator.clipboard.writeText(post.prompt);
+    navigator.clipboard.writeText(post?.prompt || "");
     setTimeout(() => setCopied(false), 3000);
   };
 
@@ -34,7 +45,7 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
           onClick={handleProfileClick}
         >
           <Image
-            src={post.creator.image}
+            src={userImage}
             alt="user_image"
             width={40}
             height={40}

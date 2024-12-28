@@ -20,8 +20,7 @@ const UserSchema = new Schema({
   },
 });
 
-// look at [models.User] see if it is exist
-// if not then create new model
+// look at [models.User] see if it is exist || if not then create new model
 const User = models.User || model("User", UserSchema);
 
 export default User;
